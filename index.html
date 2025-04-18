@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Updated Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:5000 http://localhost:8080; img-src 'self' http://localhost:5000 http://localhost:8080 data:; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Odaville - Limitless Views Crafted</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/blog-styles.css">
+    <link rel="stylesheet" href="./css/gallery-styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Header with Logo and Navigation -->
+<header class="site-header">
+    <div class="header-container">
+        <div class="logo">
+            <img src="images/Layer 2.png" alt="Odaville">
+        </div>
+        
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Hamburger Menu for Mobile -->
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</header>
+
+<!-- Main Hero Section -->
+<section class="hero-container">
+    <div class="hero-content-wrapper">
+        <!-- Video Background for Hero Section -->
+<div class="video-background">
+    <video autoplay loop muted playsinline>
+        <source src="images/Home-page-video.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+</div>
+        <div class="hero-content">
+            <h1>Welcome to Odaville</h1>
+            <p class="hero-description">
+                We don’t just make windows, We create portals<br>
+            </p>
+            
+<!-- HTML Structure for Button with SVG Background -->
+<div class="cta-container">
+    <!-- SVG Button Shape -->
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="280" height="71" viewBox="0 0 280 71" class="button-shape">
+      <defs>
+        <filter id="Rectangle_10" x="0" y="0" width="280" height="280" filterUnits="userSpaceOnUse">
+          <feOffset dx="7" dy="7" input="SourceAlpha"/>
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feFlood flood-opacity="0.161"/>
+          <feComposite operator="in" in2="blur"/>
+          <feComposite in="SourceGraphic"/>
+        </filter>
+      </defs>
+      <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#Rectangle_10)">
+        <path id="Rectangle_10-2" data-name="Rectangle 10" d="M56,0H265a0,0,0,0,1,0,0V0a56,56,0,0,1-56,56H0a0,0,0,0,1,0,0v0A56,56,0,0,1,56,0Z" transform="translate(0.5 0.5)" fill="#ca8355"/>
+      </g>
+    </svg>
+    
+    <!-- Button Text -->
+    <a href="#" class="cta-button">
+      View Works <span class="arrow">›</span>
+    </a>
+  </div>
+        
+        <!-- Scroll Down Indicator -->
+        <div class="scroll-down">
+            <span>Scroll Down</span>
+            <div class="scroll-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="11.5" stroke="#FFFFFF"/>
+                    <path d="M7 10L12 15L17 10" stroke="#FFFFFF" stroke-width="1.5"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- About Us Section -->
+<section class="about-section">
+
+    
+    <div class="about-container">
+        <div class="about-header">
+            <div class="about-tagline animate-on-scroll">
+
+
+
+            </div>
+            
+            <div class="about-headline animate-on-scroll">
+                <h2>
+Our Story
+                </h2>
+            </div>
+        </div>
+        
+        <div class="about-content">
+            <div class="about-story animate-on-scroll">
+                <div class="story-section">
+                    <p>We push the boundaries of functionality and aesthetics.
+Founded in 2016, with a vision for creating architectural elements that are minimalistic, yet efficient. Our commitment allows architects to achieve their vision without compromise. </p>
+                    
+                </div>
+                
+                <div class="philosophy-pillars">
+                    <div class="philosophy-pillar">
+                        <div class="pillar-number">01</div>
+                        <h4>Design</h4>
+                        <p>Our products exceed standards in terms of structure, efficiency and longevity</p>
+                    </div>
+                    
+                    <div class="philosophy-pillar">
+                        <div class="pillar-number">02</div>
+                        <h4>Minimalism</h4>
+                        <p>We emphasize clean lines and thoughtful proportions to complement architectural vision.</p>
+                    </div>
+                    
+                    <div class="philosophy-pillar">
+                        <div class="pillar-number">03</div>
+                        <h4>Style </h4>
+                        <p>We create environments where light, air and spatial flow are optimized.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="about-cta animate-on-scroll">
+        <h3>Ready to transform your architectural vision?</h3>
+        <a href="#contact" class="about-cta-button">SCHEDULE A CONSULTATION</a>
+    </div>
+</section>
+
+
+<!-- Services Section with Grid Layout -->
+<section class="services-section">
+    <div class="services-container">
+        <div class="services-header animate-on-scroll">
+            <h2 class="services-title">Services</h2>
+            <p class="services-subtitle">Expertly Engineered, Seamlessly Delivered</p>
+        </div>
+        
+        <div class="services-grid animate-on-scroll">
+            <!-- Service Item 1 -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                </div>
+                <h3 class="service-title">Consultation</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+            
+            <!-- Service Item 2 -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                </div>
+                <h3 class="service-title">Design</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+            
+            <!-- Service Item 3 -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                </div>
+                <h3 class="service-title">Manufacturing</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+            
+            <!-- Service Item 4 -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 19 21 12 17 5 21 12 2"></polygon></svg>
+                </div>
+                <h3 class="service-title">Installation</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+            
+            <!-- Service Item 5 -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+                <h3 class="service-title">Maintenance</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+            
+            <!-- Service Item 6 - Nationwide Reach -->
+            <div class="service-card">
+                <div class="service-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <h3 class="service-title">Nationwide Reach</h3>
+                <a href="#" class="service-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </a>
+            </div>
+        </div>
+        
+        <div class="services-bottom-cta animate-on-scroll">
+            <a href="#" class="services-cta-button"> View More</a>
+        </div>
+    </div>
+</section>
+
+<!-- Products Section with Category Filtering -->
+<section class="products-section">
+    <div class="products-container">
+        <div class="products-header">
+            <div class="products-title">
+                Products
+            </div>
+            <div class="section-headline animate-on-scroll">
+                <h2>
+                    
+                    <span class=products-subtitle> Innovative and High-Quality Architectural Solutions</span>
+                    <!-- <span class="line-break">vision.</span> -->
+                </h2>
+            </div>
+        </div>
+        
+        <!-- Products Swiper with loading state -->
+        <div class="swiper products-swiper animate-on-scroll">
+            <!-- Loading spinner -->
+            <div class="swiper-loader">
+                <div class="spinner"></div>
+            </div>
+            
+            <div class="swiper-wrapper">
+                <!-- Product slides will be dynamically generated by JavaScript -->
+            </div>
+            
+<!-- Modern Navigation Buttons with Inline Styles -->
+<div style="display: flex; justify-content: center; align-items: center; margin: 30px auto 40px; gap: 30px; position: relative; z-index: 10;">
+    <!-- Previous Button -->
+    <button id="prev-product" style="width: 56px; height: 56px; border-radius: 50%; background-color: #fff; border: none; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative; overflow: hidden; margin-top: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transition: all 0.3s ease; ">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </button>
+    
+    <!-- Next Button -->
+    <button id="next-product" style="width: 56px; height: 56px; border-radius: 50%; background-color: #fff; border: none; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative; overflow: hidden; margin-top: 20px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transition: all 0.3s ease;">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+    </button>
+</div>
+
+            
+        
+        <!-- Category Filters -->
+        <div class="product-categories animate-on-scroll">
+            <button class="category-button active" data-category="windows">Windows & Glass</button>
+            <button class="category-button" data-category="doors">Door Systems</button>
+            <button class="category-button" data-category="signature">Signature Series</button>
+            <button class="category-button" data-category="architectural">Architectural Elements</button>
+        </div>
+    </div>
+</section>
+<!-- Gallery Section -->
+<section class="gallery-section" id="gallery">
+    <div class="gallery-container">
+        <div class="gallery-header">
+            <div class="section-tagline animate-on-scroll">
+                <div class="tagline-accent"></div>
+                Experience Our Premium Portfolio
+            </div>
+            <div class="section-headline animate-on-scroll">
+                <h2>
+                    Visual Inspirations
+                    <span class="line-break">that embody our vision of </span>
+                    <span class="line-break">architectural excellence.</span>
+                </h2>
+            </div>
+        </div>
+        
+        <!-- Gallery Category Filter -->
+        <div class="gallery-filter animate-on-scroll">
+            <button class="gallery-filter-button active" data-category="all">All Projects</button>
+            <button class="gallery-filter-button" data-category="residential">Residential</button>
+            <button class="gallery-filter-button" data-category="commercial">Commercial</button>
+            <button class="gallery-filter-button" data-category="signature">Signature Series</button>
+        </div>
+        
+        <div class="gallery-grid animate-on-scroll">
+            <!-- Gallery items will be dynamically loaded here -->
+            <div class="gallery-loading">Loading gallery items...</div>
+        </div>
+        
+        <div class="gallery-cta animate-on-scroll">
+            <a href="#" class="gallery-button">VIEW FULL PORTFOLIO</a>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Blog Section -->
+<section class="recent-blog-section">
+    <div class="recent-blog-container">
+        <div class="section-header">
+            <div class="section-tagline animate-on-scroll">
+                <div class="tagline-accent"></div>
+                From Our Blog
+            </div>
+            <div class="section-headline animate-on-scroll">
+                <h2>
+                    Latest insights from the
+                    <span class="line-break">architectural world and design</span>
+                    <span class="line-break">innovations.</span>
+                </h2>
+            </div>
+        </div>
+        
+        <div class="recent-blog-posts animate-on-scroll">
+            <!-- Recent blog posts will be dynamically loaded here -->
+            <div class="blog-loading">Loading recent posts...</div>
+        </div>
+        
+        <div class="blog-cta animate-on-scroll">
+            <a href="blog.html" class="blog-button">VIEW ALL POSTS</a>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Us Section -->
+<section class="contact-section">
+    <div class="contact-container">
+        <div class="contact-header">
+            <div class="section-tagline animate-on-scroll">
+                <div class="tagline-accent"></div>
+                Get in Touch with Our Team
+            </div>
+            <div class="section-headline animate-on-scroll">
+                <h2>
+                    Transform your space with 
+                    <span class="line-break">our precision-engineered</span>
+                    <span class="line-break">architectural solutions.</span>
+                </h2>
+            </div>
+        </div>
+        
+        <div class="contact-content">
+            <div class="contact-form-container animate-on-scroll">
+                <form class="contact-form">
+                    <div class="form-group">
+                        <input type="text" id="name" name="name" placeholder="Your Name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Your Email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="tel" id="phone" name="phone" placeholder="Your Phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="subject" name="subject" required>
+                            <option value="" disabled selected>Select Subject</option>
+                            <option value="residential">Residential Project</option>
+                            <option value="commercial">Commercial Project</option>
+                            <option value="consultation">Design Consultation</option>
+                            <option value="other">Other Inquiry</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea id="message" name="message" placeholder="Your Message" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="submit-button">SEND MESSAGE</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="contact-info animate-on-scroll">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Call Us</h3>
+                        <p>+91 XXXXX</p>
+                        <p>Mon-Fri: 9AM-6PM</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Email Us</h3>
+                        <p>info@odaville.com</p>
+                        <p>support@odaville.com</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Visit Us</h3>
+                        <p>XXXXXX</p>
+                        <p>XXXXXX</p>
+                    </div>
+                </div>
+                
+                <div class="map-container">
+                    <!-- Replace with your actual map embed code -->
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d96708.34194548315!2d-74.03927100013587!3d40.75904032341479!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2588f046ee661%3A0xa0b3281fcecc08c!2sManhattan%2C%20New%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1710977499297!5m2!1sen!2sus" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Footer Section with Fix -->
+<footer class="footer-section">
+    <div class="footer-container">
+        <div class="footer-top">
+            <div class="footer-logo">
+                <img src="./public/uploads/images/Layer 2.png" alt="Odaville Logo">
+            </div>
+            
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">News & Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#">Architectural Design</a></li>
+                        <li><a href="#">Window Installation</a></li>
+                        <li><a href="#">Door Systems</a></li>
+                        <li><a href="#">Custom Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Products</h3>
+                    <ul>
+                        <li><a href="#">Windows & Glass</a></li>
+                        <li><a href="#">Door Systems</a></li>
+                        <li><a href="#">Signature Series</a></li>
+                        <li><a href="#">Architectural Elements</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <ul>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Schedule a Call</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="social-links">
+            <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+            </a>
+            <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+            </a>
+            <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                    <rect x="2" y="9" width="4" height="12"></rect>
+                    <circle cx="4" cy="4" r="2"></circle>
+                </svg>
+            </a>
+            <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+                </svg>
+            </a>
+            <a href="#" class="social-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="copyright">
+                <p>&copy; 2025 Odaville. All rights reserved.</p>
+            </div>
+            
+            <div class="legal-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Scripts are added below, no additional content -->
+
+
+<!--Products page Buttons scripts -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        // Navigation functionality
+        const prevBtn = document.getElementById('prev-product');
+        const nextBtn = document.getElementById('next-product');
+        
+        if (prevBtn && nextBtn) {
+            // Add click handlers
+            prevBtn.addEventListener('click', function() {
+                const swiperPrevButton = document.querySelector('.swiper-button-prev');
+                if (swiperPrevButton) swiperPrevButton.click();
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                const swiperNextButton = document.querySelector('.swiper-button-next');
+                if (swiperNextButton) swiperNextButton.click();
+            });
+            
+            // Add hover effects
+            [prevBtn, nextBtn].forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#ca8355';
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 10px 25px rgba(202, 131, 85, 0.25)';
+                    const svg = this.querySelector('svg');
+                    if (svg) svg.style.stroke = '#fff';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '#fff';
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.08)';
+                    const svg = this.querySelector('svg');
+                    if (svg) svg.style.stroke = '#333';
+                });
+                
+                btn.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 8px 15px rgba(202, 131, 85, 0.2)';
+                });
+                
+                btn.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 10px 25px rgba(202, 131, 85, 0.25)';
+                });
+            });
+        }
+    }, 1000);
+});
+</script>
+
+
+
+    
+<script src="./js/script.js"></script>
+<script src="./js/hamburger-menu.js"></script>
+<script src="./js/text-animations.js"></script>
+<script src="./js/preloader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+<!-- Your scripts should come after Swiper is loaded -->
+<script src="./js/script.js"></script>
+<script src="./js/hamburger-menu.js"></script>
+<script src="./js/text-animations.js"></script>
+<!-- Make sure the fixed products.js is loaded AFTER Swiper -->
+<script src="./js/products.js"></script>
+<script src="./js/about.js"></script>
+<script src="./js/db-loader.js"></script>
+<script src="./js/product-navigation.js"></script>
+
+<!-- Viewport height fix for mobile -->
+<script>
+  function setViewportHeight() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  }
+  
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  window.addEventListener('orientationchange', setViewportHeight);
+</script>
+</body>
+</html>

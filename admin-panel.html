@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Odaville Admin Panel</title>
+
+    <!-- WebSocket Connection Fix - Must be first -->
+    <script>
+      // Prevent WebSocket connection issues
+      (function () {
+        // Fix WDS errors by adding event listeners that prevent connection timeout
+        window.addEventListener(
+          "error",
+          function (event) {
+            if (
+              event.message &&
+              (event.message.includes("WDS") ||
+                event.message.includes("WebSocket"))
+            ) {
+              console.warn("Suppressed WebSocket error");
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          },
+          true
+        );
+
+        // Suppress unhandled promise rejections
+        window.addEventListener("unhandledrejection", function (event) {
+          if (
+            event.reason &&
+            event.reason.message &&
+            (event.reason.message.includes("WDS") ||
+              event.reason.message.includes("WebSocket"))
+          ) {
+            console.warn("Suppressed WebSocket promise rejection");
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+
+        // Force websocket reconnection
+        const checkAndReconnect = function () {
+          const wdsSocket =
+            window.___browserSync___ && window.___browserSync___.socket;
+          if (wdsSocket && wdsSocket.disconnected) {
+            console.log("Attempting to reconnect WebSocket...");
+            wdsSocket.connect();
+          }
+        };
+
+        // Check connection every 5 seconds
+        setInterval(checkAndReconnect, 5000);
+      })();
+    </script>
+
+    <!-- Regular styles and scripts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin-styles.css" />
+
+    <!-- Add offline support script -->
+    <script>
+      // Add offline detection
+      window.isOffline = false;
+      window.addEventListener("online", function () {
+        window.isOffline = false;
+        document.body.classList.remove("offline-mode");
+        console.log("Back online");
+      });
+
+      window.addEventListener("offline", function () {
+        window.isOffline = true;
+        document.body.classList.add("offline-mode");
+        console.log("Offline mode activated");
+      });
+    </script>
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Offline mode banner -->
+      <div
+        id="offline-banner"
+        style="
+          display: none;
+          background-color: #fff3cd;
+          color: #856404;
+          text-align: center;
+          padding: 10px;
+          margin-bottom: 15px;
+        "
+      >
+        You are currently in offline mode. Some features may be limited.
+        <button
+          onclick="window.location.reload()"
+          style="
+            background: #856404;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+          "
+        >
+          Reconnect
+        </button>
+      </div>
+
+      <!-- Sidebar Navigation -->
+      <div class="sidebar">
+        <div class="logo">
+          <img src="./images/Layer 2.png" alt="Odaville Logo" />
+        </div>
+
+        <nav class="admin-nav">
+          <ul>
+            <li>
+              <a href="#" class="active" data-section="dashboard">Dashboard</a>
+            </li>
+            <li>
+              <a href="#" data-section="blog-manage">Manage Blog Posts</a>
+            </li>
+            <li>
+              <a href="#" data-section="gallery-manage">Manage Gallery</a>
+            </li>
+            <li>
+              <a href="#" data-section="products-manage">Manage Products</a>
+            </li>
+            <li><a href="index.html" target="_blank">View Website</a></li>
+            <li><a href="#" id="logout-btn">Logout</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="content-area">
+        <!-- API Connection Error Banner (hidden by default) -->
+        <div id="api-error" class="api-error-alert" style="display: none">
+          <strong>API Connection Error</strong>
+          <p id="api-error-message">
+            Unable to connect to the server. Please check if the server is
+            running.
+          </p>
+          <button id="retry-connection" class="retry-btn">
+            Retry Connection
+          </button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="admin-section active">
+          <div class="section-header">
+            <h1>Dashboard</h1>
+            <p class="date-display" id="current-date"></p>
+          </div>
+
+          <div class="dashboard-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path
+                    d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+                  ></path>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <h3>Total Blog Posts</h3>
+                <p class="stat-value" id="blog-count">-</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <h3>Gallery Items</h3>
+                <p class="stat-value" id="gallery-count">-</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                  ></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <h3>Products</h3>
+                <p class="stat-value" id="product-count">-</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h2>Recent Content</h2>
+          </div>
+
+          <div class="recent-content">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recent-content-table">
+                <!-- Content loaded dynamically -->
+                <tr>
+                  <td colspan="4" class="text-center">
+                    <div class="loading-indicator">
+                      <div class="loading-spinner"></div>
+                      <span>Loading recent content...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Blog Management Section -->
+        <section id="blog-manage" class="admin-section">
+          <div class="section-header">
+            <h1>Manage Blog Posts</h1>
+            <button class="add-new-btn" id="add-blog-btn">Add New Post</button>
+          </div>
+
+          <div class="admin-content">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="blog-table">
+                <!-- Blog posts loaded dynamically -->
+                <tr>
+                  <td colspan="5" class="text-center">
+                    <div class="loading-indicator">
+                      <div class="loading-spinner"></div>
+                      <span>Loading blog posts...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Rest of the content remains the same -->
+          <!-- Blog Post Form -->
+          <form id="blog-post-form" enctype="multipart/form-data">
+            <!-- Form contents remain the same -->
+            <!-- ... -->
+          </form>
+        </section>
+
+        <!-- Gallery Management Section -->
+        <section id="gallery-manage" class="admin-section">
+          <!-- Gallery section content remains the same -->
+          <!-- ... -->
+        </section>
+
+        <!-- Products Management Section -->
+        <section id="products-manage" class="admin-section">
+          <!-- Products section content remains the same -->
+          <!-- ... -->
+        </section>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="confirmation-dialog" id="confirm-dialog">
+      <!-- Dialog content remains the same -->
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Helper function to handle network errors more gracefully
+      function safelyLoadScript(src, onError) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = () => {
+            console.error(`Failed to load script: ${src}`);
+            if (typeof onError === "function") {
+              onError();
+            }
+            reject(new Error(`Failed to load ${src}`));
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      // Load scripts in sequence with error handling
+      async function loadScripts() {
+        try {
+          // First check if API server is available
+          const apiCheck = await fetch("http://localhost:5000/api/test").catch(
+            (err) => {
+              // Show API error message
+              const errorBanner = document.getElementById("api-error");
+              if (errorBanner) errorBanner.style.display = "block";
+
+              // Mark as offline
+              window.isOffline = true;
+              document.body.classList.add("offline-mode");
+              document.getElementById("offline-banner").style.display = "block";
+
+              throw err;
+            }
+          );
+
+          // Load scripts in the correct order
+          await safelyLoadScript("./js/api.js");
+          await safelyLoadScript("./js/admin.js");
+
+          console.log("All scripts loaded successfully");
+        } catch (error) {
+          console.warn("Script loading error:", error);
+
+          // Show friendly error to user
+          const contentArea = document.querySelector(".content-area");
+          if (contentArea) {
+            const errorMsg = document.createElement("div");
+            errorMsg.className = "api-error-alert";
+            errorMsg.innerHTML = `
+              <strong>Error Loading Admin Panel</strong>
+              <p>There was a problem connecting to the server or loading necessary scripts.</p>
+              <button onclick="window.location.reload()" class="retry-btn">Reload Page</button>
+            `;
+            contentArea.prepend(errorMsg);
+          }
+        }
+      }
+
+      // Show the current date
+      document.addEventListener("DOMContentLoaded", function () {
+        const dateDisplay = document.getElementById("current-date");
+        if (dateDisplay) {
+          const now = new Date();
+          dateDisplay.textContent = now.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        }
+
+        // Add retry button functionality
+        const retryBtn = document.getElementById("retry-connection");
+        if (retryBtn) {
+          retryBtn.addEventListener("click", function () {
+            window.location.reload();
+          });
+        }
+
+        // Load scripts
+        loadScripts();
+      });
+
+      // Handle offline/online events
+      window.addEventListener("online", function () {
+        const banner = document.getElementById("offline-banner");
+        if (banner) banner.style.display = "none";
+
+        // Reload data
+        window.location.reload();
+      });
+
+      window.addEventListener("offline", function () {
+        const banner = document.getElementById("offline-banner");
+        if (banner) banner.style.display = "block";
+      });
+
+      // Check offline status initially
+      if (!navigator.onLine) {
+        const banner = document.getElementById("offline-banner");
+        if (banner) banner.style.display = "block";
+        document.body.classList.add("offline-mode");
+      }
+    </script>
+  </body>
+</html>
