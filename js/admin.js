@@ -1,12 +1,180 @@
 // This is a modified version of the admin.js file to fix connection issues
 
-import {
-  authAPI,
-  galleryAPI,
-  blogAPI,
-  productsAPI,
-  checkAPIHealth,
-} from "./api.js";
+// API Base URL and Authentication
+const API_BASE_URL = "http://localhost:5000/api";
+
+// Authentication API
+const authAPI = {
+  login: async (username, password) => {
+    try {
+      console.log("Attempting login for:", username);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Invalid username or password");
+      }
+
+      const result = await response.json();
+      console.log("Login successful");
+      return result;
+    } catch (error) {
+      console.error("Login failed:", error.message);
+      throw error;
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "admin-login.html";
+  },
+
+  isAuthenticated: () => {
+    return !!localStorage.getItem("token");
+  },
+
+  getToken: () => {
+    return localStorage.getItem("token");
+  },
+};
+
+// Gallery API
+const galleryAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/gallery`, {
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to fetch gallery items");
+    return response.json();
+  },
+  
+  getById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to fetch gallery item");
+    return response.json();
+  },
+  
+  create: async (formData) => {
+    const response = await fetch(`${API_BASE_URL}/gallery`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      },
+      body: formData // Don't set Content-Type, let browser set it with boundary
+    });
+    if (!response.ok) throw new Error("Failed to create gallery item");
+    return response.json();
+  },
+  
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/gallery/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to delete gallery item");
+    return response.json();
+  }
+};
+
+// Blog API
+const blogAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/blog`);
+    if (!response.ok) throw new Error("Failed to fetch blog posts");
+    return response.json();
+  },
+  
+  getById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/blog/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to fetch blog post");
+    return response.json();
+  },
+  
+  create: async (formData) => {
+    const response = await fetch(`${API_BASE_URL}/blog`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      },
+      body: formData // Don't set Content-Type, let browser set it with boundary
+    });
+    if (!response.ok) throw new Error("Failed to create blog post");
+    return response.json();
+  },
+  
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/blog/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to delete blog post");
+    return response.json();
+  }
+};
+
+// Products API
+const productsAPI = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/products`);
+    if (!response.ok) throw new Error("Failed to fetch products");
+    return response.json();
+  },
+  
+  create: async (data) => {
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error("Failed to create product");
+    return response.json();
+  },
+  
+  delete: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
+    if (!response.ok) throw new Error("Failed to delete product");
+    return response.json();
+  }
+};
+
+// Check API health
+async function checkAPIHealth() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/test`);
+    return { status: response.ok ? "online" : "offline" };
+  } catch (error) {
+    return { status: "offline", error: error.message };
+  }
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if user is authenticated
@@ -111,12 +279,18 @@ function initNavigation() {
   const sections = document.querySelectorAll(".admin-section");
 
   navLinks.forEach((link) => {
+    if (link.id === "logout-btn" || !link.getAttribute("data-section")) return;
+    
     link.addEventListener("click", function (e) {
       e.preventDefault();
+      console.log("Navigation clicked:", this.getAttribute("data-section"));
 
       // Remove active class from all links and sections
       navLinks.forEach((link) => link.classList.remove("active"));
-      sections.forEach((section) => section.classList.remove("active"));
+      sections.forEach((section) => {
+        section.style.display = "none";
+        section.classList.remove("active");
+      });
 
       // Add active class to clicked link
       this.classList.add("active");
@@ -126,11 +300,24 @@ function initNavigation() {
       if (sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
+          section.style.display = "block";
           section.classList.add("active");
+          console.log("Activated section:", sectionId);
         }
       }
     });
   });
+
+  // Set initial active section
+  const activeLink = document.querySelector(".admin-nav a.active");
+  if (activeLink && activeLink.getAttribute("data-section")) {
+    const initialSection = document.getElementById(activeLink.getAttribute("data-section"));
+    if (initialSection) {
+      sections.forEach(section => section.style.display = "none");
+      initialSection.style.display = "block";
+      initialSection.classList.add("active");
+    }
+  }
 }
 
 // Initialize dashboard with error handling and timeouts
@@ -258,8 +445,7 @@ function initBlogManagement() {
     console.error("Error loading blog posts:", error);
     const tbody = document.getElementById("blog-table");
     if (tbody) {
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center">Error loading blog posts. Server connection issue.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Error loading blog posts. Please check console for details.</td></tr>';
     }
   });
 
@@ -281,11 +467,42 @@ function initBlogManagement() {
         const formData = new FormData(blogForm);
         const blogId = document.getElementById("blog-id").value;
 
+        // Log form data for debugging
+        console.log("Form data:");
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        // Convert isPublished to boolean
+        const isPublished = formData.get('isPublished') === 'published';
+        formData.set('isPublished', isPublished ? 'true' : 'false');
+
         let response;
         if (blogId) {
-          response = await blogAPI.update(blogId, formData);
+          // Handle update
+          formData.append('id', blogId);
+          response = await fetch(`${API_BASE_URL}/blog/${blogId}`, {
+            method: 'PUT',
+            headers: {
+              "Authorization": `Bearer ${authAPI.getToken()}`
+            },
+            body: formData
+          });
         } else {
-          response = await blogAPI.create(formData);
+          // Handle create - use fetch directly for more control
+          response = await fetch(`${API_BASE_URL}/blog`, {
+            method: 'POST',
+            headers: {
+              "Authorization": `Bearer ${authAPI.getToken()}`
+            },
+            body: formData
+          });
+        }
+
+        // Check for error responses
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+          throw new Error(errorData.message || `Failed with status: ${response.status}`);
         }
 
         // Reset form and reload posts
@@ -293,17 +510,10 @@ function initBlogManagement() {
         await loadBlogPosts();
         await initDashboard();
 
-        alert(
-          blogId
-            ? "Blog post updated successfully!"
-            : "Blog post created successfully!"
-        );
+        alert(blogId ? "Blog post updated successfully!" : "Blog post created successfully!");
       } catch (error) {
         console.error("Error saving blog post:", error);
-        alert(
-          "Error saving blog post: " +
-            (error.message || "Server connection issue")
-        );
+        alert("Error saving blog post: " + (error.message || "Server connection issue"));
       }
     });
   }
@@ -416,8 +626,7 @@ function initGalleryManagement() {
     console.error("Error loading gallery items:", error);
     const grid = document.getElementById("admin-gallery-grid");
     if (grid) {
-      grid.innerHTML =
-        '<div class="error-message">Error loading gallery items. Server connection issue.</div>';
+      grid.innerHTML = '<div class="error-message">Error loading gallery items. Please check console for details.</div>';
     }
   });
 
@@ -438,11 +647,58 @@ function initGalleryManagement() {
         const formData = new FormData(galleryForm);
         const galleryId = document.getElementById("gallery-id").value;
 
-        if (galleryId) {
-          await galleryAPI.update(galleryId, formData);
-        } else {
-          await galleryAPI.create(formData);
+        // Validate required fields
+        const title = formData.get('title');
+        const category = formData.get('category');
+        const image = formData.get('image');
+
+        if (!title || !category) {
+          throw new Error('Title and category are required fields');
         }
+
+        if (!galleryId && !image) {
+          throw new Error('Image is required for new gallery items');
+        }
+
+        // Log form data for debugging
+        console.log("Gallery form data:");
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        // Convert isFeatured to boolean string
+        const isFeatured = formData.get('isFeatured') === 'on';
+        formData.set('isFeatured', String(isFeatured));
+
+        let response;
+        if (galleryId) {
+          // Handle update
+          response = await fetch(`${API_BASE_URL}/gallery/${galleryId}`, {
+            method: 'PUT',
+            headers: {
+              "Authorization": `Bearer ${authAPI.getToken()}`
+            },
+            body: formData
+          });
+        } else {
+          // Handle create
+          response = await fetch(`${API_BASE_URL}/gallery`, {
+            method: 'POST',
+            headers: {
+              "Authorization": `Bearer ${authAPI.getToken()}`
+            },
+            body: formData
+          });
+        }
+
+        // Check for error responses
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+          throw new Error(errorData.message || `Server error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Gallery save result:", result);
 
         // Reset and hide form
         resetGalleryForm();
@@ -452,24 +708,16 @@ function initGalleryManagement() {
         await loadGalleryItems();
         await initDashboard();
 
-        alert(
-          galleryId
-            ? "Gallery item updated successfully!"
-            : "Gallery item created successfully!"
-        );
+        alert(galleryId ? "Gallery item updated successfully!" : "Gallery item created successfully!");
       } catch (error) {
         console.error("Error saving gallery item:", error);
-        alert(
-          "Error saving gallery item: " +
-            (error.message || "Server connection issue")
-        );
+        alert("Error saving gallery item: " + (error.message || "Server connection issue"));
       }
     });
   }
 
   // Close form button
-  const closeFormBtn =
-    formContainer && formContainer.querySelector(".close-form-btn");
+  const closeFormBtn = formContainer && formContainer.querySelector(".close-form-btn");
   if (closeFormBtn) {
     closeFormBtn.addEventListener("click", () => {
       formContainer.style.display = "none";
@@ -511,7 +759,7 @@ async function loadGalleryItems() {
 
     if (!grid) return;
 
-    if (gallery.length === 0) {
+    if (!gallery || gallery.length === 0) {
       grid.innerHTML = '<div class="no-items">No gallery items found</div>';
       return;
     }
@@ -521,25 +769,19 @@ async function loadGalleryItems() {
         (item) => `
       <div class="gallery-item">
         <div class="gallery-item-image">
-          <img src="${item.imageUrl}" alt="${
-          item.title
-        }" onerror="this.src='./images/fallback.jpg'">
+          <img src="${item.imageUrl}" alt="${item.title}" onerror="this.src='./images/fallback.jpg'">
         </div>
         <div class="gallery-item-content">
           <h3 class="gallery-item-title">${item.title}</h3>
-          <p class="gallery-item-subtitle">${item.subtitle || ""}</p>
+          <p class="gallery-item-description">${item.description || ""}</p>
           <p class="gallery-item-category">${item.category}</p>
           <div class="gallery-item-actions">
-            <button class="action-btn edit" onclick="handleEditGallery('${
-              item._id
-            }')">
+            <button class="action-btn edit" onclick="handleEditGallery('${item._id}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
               </svg>
             </button>
-            <button class="action-btn delete" onclick="handleDeleteGallery('${
-              item._id
-            }')">
+            <button class="action-btn delete" onclick="handleDeleteGallery('${item._id}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -547,18 +789,14 @@ async function loadGalleryItems() {
             </button>
           </div>
         </div>
-        ${
-          item.isFeatured
-            ? '<div class="gallery-item-badge">Featured</div>'
-            : ""
-        }
+        ${item.isFeatured ? '<div class="gallery-item-badge">Featured</div>' : ''}
       </div>
     `
       )
       .join("");
   } catch (error) {
     console.error("Error loading gallery items:", error);
-    throw error; // Re-throw for caller handling
+    throw error;
   }
 }
 
