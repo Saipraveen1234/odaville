@@ -204,11 +204,7 @@ export const galleryAPI = {
    */
   getAll: async () => {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/gallery`, {
-        headers: {
-          Authorization: `Bearer ${authAPI.getToken()}`,
-        },
-      });
+      const response = await fetchWithTimeout(`${API_BASE_URL}/gallery`);
       return handleResponse(response);
     } catch (error) {
       console.error("Error fetching gallery items:", error);
@@ -223,11 +219,7 @@ export const galleryAPI = {
    */
   getById: async (id) => {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/gallery/${id}`, {
-        headers: {
-          Authorization: `Bearer ${authAPI.getToken()}`,
-        },
-      });
+      const response = await fetchWithTimeout(`${API_BASE_URL}/gallery/${id}`);
       return handleResponse(response);
     } catch (error) {
       console.error(`Error fetching gallery item ${id}:`, error);
@@ -321,11 +313,7 @@ export const blogAPI = {
     try {
       const response = await fetchWithTimeout(
         `${API_BASE_URL}/blog?published=${published}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authAPI.getToken()}`,
-          },
-        }
+        published ? {} : { headers: { Authorization: `Bearer ${authAPI.getToken()}` } }
       );
       return handleResponse(response);
     } catch (error) {
@@ -341,11 +329,7 @@ export const blogAPI = {
    */
   getById: async (id) => {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/blog/${id}`, {
-        headers: {
-          Authorization: `Bearer ${authAPI.getToken()}`,
-        },
-      });
+      const response = await fetchWithTimeout(`${API_BASE_URL}/blog/${id}`);
       return handleResponse(response);
     } catch (error) {
       console.error(`Error fetching blog post ${id}:`, error);

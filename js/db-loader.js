@@ -69,8 +69,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
 
     // Convenience methods
-    async getBlogs() {
-      return this.fetch("/blog?published=true");
+    async getBlogs(published = false) {
+      return this.fetch("/blog", { params: { published } });
     },
 
     async getBlogById(id) {
@@ -196,8 +196,8 @@ document.addEventListener("DOMContentLoaded", function () {
         '<div class="blog-loading">Loading blog posts from database...</div>';
 
       try {
-        // Get blog posts strictly from database
-        const posts = await API.getBlogs();
+        // Always get published posts only for public website
+        const posts = await API.getBlogs(true);
 
         if (!posts || posts.length === 0) {
           container.innerHTML =
@@ -474,8 +474,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!relatedContainer) return;
 
       try {
-        // Get all blog posts to find related ones
-        const posts = await API.getBlogs();
+        // Get all published blog posts to find related ones
+        const posts = await API.getBlogs(true);
 
         if (!posts || posts.length === 0) {
           relatedContainer.innerHTML =
@@ -486,7 +486,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Find posts in the same category, excluding current post
         let relatedPosts = posts.filter(
           (post) =>
-            post.isPublished &&
             post.category === currentPost.category &&
             post._id !== currentPost._id
         );
@@ -495,7 +494,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (relatedPosts.length < 3) {
           const recentPosts = posts.filter(
             (post) =>
-              post.isPublished &&
               post._id !== currentPost._id &&
               !relatedPosts.some((rp) => rp._id === post._id)
           );

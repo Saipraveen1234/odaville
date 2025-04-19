@@ -94,7 +94,11 @@ const galleryAPI = {
 // Blog API
 const blogAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/blog`);
+    const response = await fetch(`${API_BASE_URL}/blog`, {
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      }
+    });
     if (!response.ok) throw new Error("Failed to fetch blog posts");
     return response.json();
   },
@@ -115,9 +119,21 @@ const blogAPI = {
       headers: {
         "Authorization": `Bearer ${authAPI.getToken()}`
       },
-      body: formData // Don't set Content-Type, let browser set it with boundary
+      body: formData
     });
     if (!response.ok) throw new Error("Failed to create blog post");
+    return response.json();
+  },
+  
+  update: async (id, formData) => {
+    const response = await fetch(`${API_BASE_URL}/blog/${id}`, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${authAPI.getToken()}`
+      },
+      body: formData
+    });
+    if (!response.ok) throw new Error("Failed to update blog post");
     return response.json();
   },
   
@@ -440,6 +456,41 @@ function initBlogManagement() {
   const addBlogBtn = document.getElementById("add-blog-btn");
   const blogForm = document.getElementById("blog-post-form");
 
+  // Initialize TinyMCE
+  tinymce.init({
+    selector: '#blog-content',
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+    images_upload_url: `${API_BASE_URL}/blog/upload-content-image`,
+    images_upload_handler: async function (blobInfo, progress) {
+      try {
+        const formData = new FormData();
+        formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+        const response = await fetch(`${API_BASE_URL}/blog/upload-content-image`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authAPI.getToken()}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Image upload failed');
+        }
+
+        const data = await response.json();
+        return data.url;
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+      }
+    },
+    height: 500,
+    menubar: true,
+    automatic_uploads: true
+  });
+
   // Load existing blog posts with error handling
   loadBlogPosts().catch((error) => {
     console.error("Error loading blog posts:", error);
@@ -455,66 +506,6 @@ function initBlogManagement() {
       resetBlogForm();
       // Show form by scrolling to it
       blogForm.scrollIntoView({ behavior: "smooth" });
-    });
-  }
-
-  // Handle form submission
-  if (blogForm) {
-    blogForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      try {
-        const formData = new FormData(blogForm);
-        const blogId = document.getElementById("blog-id").value;
-
-        // Log form data for debugging
-        console.log("Form data:");
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-
-        // Convert isPublished to boolean
-        const isPublished = formData.get('isPublished') === 'published';
-        formData.set('isPublished', isPublished ? 'true' : 'false');
-
-        let response;
-        if (blogId) {
-          // Handle update
-          formData.append('id', blogId);
-          response = await fetch(`${API_BASE_URL}/blog/${blogId}`, {
-            method: 'PUT',
-            headers: {
-              "Authorization": `Bearer ${authAPI.getToken()}`
-            },
-            body: formData
-          });
-        } else {
-          // Handle create - use fetch directly for more control
-          response = await fetch(`${API_BASE_URL}/blog`, {
-            method: 'POST',
-            headers: {
-              "Authorization": `Bearer ${authAPI.getToken()}`
-            },
-            body: formData
-          });
-        }
-
-        // Check for error responses
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
-          throw new Error(errorData.message || `Failed with status: ${response.status}`);
-        }
-
-        // Reset form and reload posts
-        resetBlogForm();
-        await loadBlogPosts();
-        await initDashboard();
-
-        alert(blogId ? "Blog post updated successfully!" : "Blog post created successfully!");
-      } catch (error) {
-        console.error("Error saving blog post:", error);
-        alert("Error saving blog post: " + (error.message || "Server connection issue"));
-      }
     });
   }
 
@@ -595,7 +586,7 @@ async function loadBlogPosts() {
       .join("");
   } catch (error) {
     console.error("Error loading blog posts:", error);
-    throw error; // Re-throw for caller handling
+    throw error;
   }
 }
 
@@ -608,6 +599,9 @@ function resetBlogForm() {
   document.getElementById("blog-id").value = "";
   document.getElementById("blog-image-preview").style.display = "none";
   document.getElementById("blog-image-preview").src = "";
+  
+  // Reset TinyMCE content
+  tinymce.get('blog-content').setContent('');
 
   // Scroll back to blog list
   document
@@ -1019,7 +1013,8 @@ window.handleEditBlog = async (id) => {
     // Set form values
     document.getElementById("blog-id").value = id;
     document.getElementById("blog-title").value = blog.title || "";
-    document.getElementById("blog-content").value = blog.content || "";
+    // Set TinyMCE content
+    tinymce.get('blog-content').setContent(blog.content || "");
     document.getElementById("blog-author").value = blog.author || "";
 
     // For category and status, check if elements exist first
