@@ -20,6 +20,11 @@ const authAPI = {
       }
 
       const result = await response.json();
+      
+      // Store login timestamp
+      const loginTime = Date.now();
+      result.user.loginTime = loginTime;
+      
       console.log("Login successful");
       return result;
     } catch (error) {
@@ -31,16 +36,41 @@ const authAPI = {
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.clear(); // Clear any session data
     window.location.href = "admin-login.html";
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || '{}');
+    
+    if (!token) return false;
+    
+    // Check if login time is more than 24 hours ago
+    const loginTime = user.loginTime;
+    if (loginTime && (Date.now() - loginTime > 24 * 60 * 60 * 1000)) {
+      authAPI.logout();
+      return false;
+    }
+    
+    return true;
   },
 
   getToken: () => {
+    if (!authAPI.isAuthenticated()) {
+      authAPI.logout();
+      return null;
+    }
     return localStorage.getItem("token");
   },
+
+  refreshSession: () => {
+    const user = JSON.parse(localStorage.getItem("user") || '{}');
+    if (user.loginTime) {
+      user.loginTime = Date.now();
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+  }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -52,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Check if user is already logged in
   if (authAPI.isAuthenticated()) {
     window.location.href = "admin-panel.html";
+    return;
   }
 
   // Toggle password visibility
@@ -77,9 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await authAPI.login(username, password);
 
-      // Store token and user info
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      if (rememberMe) {
+        // Store token and user info in localStorage
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+      } else {
+        // Store in sessionStorage if not "remember me"
+        sessionStorage.setItem("token", response.token);
+        sessionStorage.setItem("user", JSON.stringify(response.user));
+      }
 
       // Redirect to admin panel
       window.location.href = "admin-panel.html";

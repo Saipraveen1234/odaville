@@ -1,5 +1,18 @@
 // Mobile menu functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Get or create hamburger button if it doesn't exist
+    let hamburger = document.querySelector('.hamburger');
+    if (!hamburger) {
+        hamburger = document.createElement('div');
+        hamburger.className = 'hamburger';
+        hamburger.innerHTML = `
+            <span></span>
+            <span></span>
+            <span></span>
+        `;
+        document.querySelector('.site-header').appendChild(hamburger);
+    }
+
     // Add mobile navigation element if it doesn't exist
     if (!document.querySelector('.mobile-nav')) {
         const mobileNav = document.createElement('div');
@@ -11,47 +24,43 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileNav.innerHTML = `<ul>${desktopNav.innerHTML}</ul>`;
             document.body.appendChild(mobileNav);
         }
-        
-        // Create overlay for mobile menu
-        if (!document.querySelector('.overlay')) {
-            const overlay = document.createElement('div');
-            overlay.className = 'overlay';
-            document.body.appendChild(overlay);
-        }
     }
     
-    const hamburger = document.querySelector('.hamburger');
+    // Create overlay for mobile menu if it doesn't exist
+    if (!document.querySelector('.overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        document.body.appendChild(overlay);
+    }
+    
     const mobileNav = document.querySelector('.mobile-nav');
     const overlay = document.querySelector('.overlay');
-    const mobileLinks = document.querySelectorAll('.mobile-nav ul li a');
     
     function toggleMenu() {
         hamburger.classList.toggle('active');
         mobileNav.classList.toggle('active');
         overlay.classList.toggle('active');
-        
-        // Prevent body scrolling when menu is open
-        if (hamburger.classList.contains('active')) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
+        document.body.style.overflow = document.body.style.overflow === 'hidden' ? '' : 'hidden';
     }
     
-    // Toggle menu on hamburger click
-    hamburger.addEventListener('click', toggleMenu);
+    // Remove any existing event listeners
+    const newHamburger = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(newHamburger, hamburger);
+    hamburger = newHamburger;
     
-    // Close menu when clicking on the overlay
+    // Add event listeners
+    hamburger.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', toggleMenu);
     
-    // Close menu when clicking on a navigation link
+    // Close menu when a link is clicked
+    const mobileLinks = mobileNav.querySelectorAll('a');
     mobileLinks.forEach(link => {
         link.addEventListener('click', toggleMenu);
     });
     
-    // Close menu when pressing Escape key
+    // Close menu when Escape key is pressed
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && hamburger.classList.contains('active')) {
+        if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
             toggleMenu();
         }
     });

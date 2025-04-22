@@ -43,6 +43,10 @@ const authAPI = {
   getToken: () => {
     return localStorage.getItem("token");
   },
+
+  refreshSession: () => {
+    // Implementation of refreshSession method
+  },
 };
 
 // Gallery API
@@ -152,33 +156,83 @@ const blogAPI = {
 // Products API
 const productsAPI = {
   getAll: async () => {
-    const response = await fetch(`${API_BASE_URL}/products`);
-    if (!response.ok) throw new Error("Failed to fetch products");
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`, {
+        headers: {
+          "Authorization": `Bearer ${authAPI.getToken()}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch products');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
   },
-  
-  create: async (data) => {
-    const response = await fetch(`${API_BASE_URL}/products`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${authAPI.getToken()}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error("Failed to create product");
-    return response.json();
+
+  create: async (productData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`, {
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${authAPI.getToken()}`
+        },
+        body: productData // Keep as FormData for file upload
+      });
+      if (!response.ok) throw new Error('Failed to create product');
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
   },
-  
+
+  update: async (id, productData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+        method: 'PUT',
+        headers: {
+          "Authorization": `Bearer ${authAPI.getToken()}`
+        },
+        body: productData // Keep as FormData for file upload
+      });
+      if (!response.ok) throw new Error('Failed to update product');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
+  },
+
   delete: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${authAPI.getToken()}`
-      }
-    });
-    if (!response.ok) throw new Error("Failed to delete product");
-    return response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          "Authorization": `Bearer ${authAPI.getToken()}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to delete product');
+      return true;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  },
+
+  getById: async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+        headers: {
+          "Authorization": `Bearer ${authAPI.getToken()}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch product');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      throw error;
+    }
   }
 };
 
@@ -191,6 +245,87 @@ async function checkAPIHealth() {
     return { status: "offline", error: error.message };
   }
 }
+
+// Check authentication status before any operation
+function checkAuth() {
+  if (!authAPI.isAuthenticated()) {
+    window.location.href = "admin-login.html";
+    return false;
+  }
+  // Refresh session timestamp
+  authAPI.refreshSession();
+  return true;
+}
+
+// Add authentication headers to fetch requests
+function getAuthHeaders() {
+  const token = authAPI.getToken();
+  return {
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json"
+  };
+}
+
+// Intercept all API calls
+async function authenticatedFetch(url, options = {}) {
+  if (!checkAuth()) return;
+  
+  const headers = {
+    ...options.headers,
+    ...getAuthHeaders()
+  };
+  
+  try {
+    const response = await fetch(url, { ...options, headers });
+    
+    if (response.status === 401) {
+      // Token expired or invalid
+      authAPI.logout();
+      return;
+    }
+    
+    return response;
+  } catch (error) {
+    console.error("API call failed:", error);
+    throw error;
+  }
+}
+
+// Update existing API calls to use authenticatedFetch
+async function loadProducts() {
+  try {
+    const response = await authenticatedFetch(`${API_BASE_URL}/products`);
+    if (!response) return;
+    
+    const products = await response.json();
+    displayProducts(products);
+  } catch (error) {
+    console.error("Error loading products:", error);
+    showAlert("error", "Failed to load products");
+  }
+}
+
+// Add periodic authentication check
+setInterval(checkAuth, 5 * 60 * 1000); // Check every 5 minutes
+
+// Initialize admin panel
+document.addEventListener("DOMContentLoaded", () => {
+  if (!checkAuth()) return;
+  
+  // Initialize all admin panel features
+  initializeProductManagement();
+  initializeBlogManagement();
+  initializeOrderManagement();
+  
+  // Add logout handler
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      authAPI.logout();
+    });
+  }
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Check if user is authenticated
@@ -496,7 +631,7 @@ function initBlogManagement() {
     console.error("Error loading blog posts:", error);
     const tbody = document.getElementById("blog-table");
     if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Error loading blog posts. Please check console for details.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center">Error loading blog posts. Please check console for details.</td></tr>';
     }
   });
 
@@ -546,7 +681,7 @@ async function loadBlogPosts() {
 
     if (blogs.length === 0) {
       tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center">No blog posts found</td></tr>';
+        '<tr><td colspan="4" class="text-center">No blog posts found</td></tr>';
       return;
     }
 
@@ -558,21 +693,16 @@ async function loadBlogPosts() {
         return `
         <tr>
           <td>${blog.title}</td>
-          <td>${blog.category || "Uncategorized"}</td>
           <td>${date}</td>
           <td><span class="status-badge ${status}">${status}</span></td>
           <td>
             <div class="action-buttons">
-              <button class="action-btn edit" onclick="handleEditBlog('${
-                blog._id
-              }')">
+              <button class="action-btn edit" onclick="handleEditBlog('${blog._id}')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                 </svg>
               </button>
-              <button class="action-btn delete" onclick="handleDeleteBlog('${
-                blog._id
-              }')">
+              <button class="action-btn delete" onclick="handleDeleteBlog('${blog._id}')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -810,196 +940,141 @@ function resetGalleryForm() {
 
 // Products Management
 function initProductManagement() {
-  const addProductBtn = document.getElementById("add-product-btn");
-  const productForm = document.getElementById("product-form");
-  const productFormContainer = document.getElementById(
-    "product-form-container"
-  );
+  const productsTable = document.getElementById('products-table');
+  const productForm = document.getElementById('product-form');
+  const productFormContainer = document.getElementById('product-form-container');
+  const addProductBtn = document.getElementById('add-product-btn');
+  const closeFormBtn = productFormContainer.querySelector('.close-form-btn');
+  const cancelBtn = productFormContainer.querySelector('.cancel-btn');
+  const productImagePreview = document.getElementById('product-image-preview');
+  const productImageInput = document.getElementById('product-image');
 
-  // Load existing products with error handling
-  loadProducts().catch((error) => {
-    console.error("Error loading products:", error);
-    const tbody = document.getElementById("products-table");
-    if (tbody) {
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center">Error loading products. Server connection issue.</td></tr>';
+  // Load products
+  async function loadProducts() {
+    try {
+      const products = await productsAPI.getAll();
+      productsTable.innerHTML = products.map(product => `
+        <tr>
+          <td><img src="${product.imageUrl}" alt="${product.title}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+          <td>${product.title}</td>
+          <td>${product.category}</td>
+          <td>${product.featured ? 'Featured' : 'Normal'}</td>
+          <td>
+            <button class="edit-btn" data-id="${product._id}">Edit</button>
+            <button class="delete-btn" data-id="${product._id}">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Add event listeners to edit and delete buttons
+      productsTable.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => editProduct(btn.dataset.id));
+      });
+      productsTable.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteProduct(btn.dataset.id));
+      });
+    } catch (error) {
+      productsTable.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center error">Error loading products. Please try again.</td>
+        </tr>
+      `;
+    }
+  }
+
+  // Show product form
+  function showProductForm(product = null) {
+    productFormContainer.style.display = 'block';
+    document.getElementById('product-form-title').textContent = product ? 'Edit Product' : 'Add New Product';
+    document.getElementById('product-id').value = product ? product._id : '';
+    document.getElementById('product-title').value = product ? product.title : '';
+    document.getElementById('product-subtitle').value = product ? product.subtitle : '';
+    document.getElementById('product-description').value = product ? product.description : '';
+    document.getElementById('product-category').value = product ? product.category : 'windows';
+    document.getElementById('product-featured').checked = product ? product.featured : false;
+    document.getElementById('product-order').value = product ? product.order : 0;
+    
+    if (product && product.imageUrl) {
+      productImagePreview.src = product.imageUrl;
+      productImagePreview.style.display = 'block';
+    } else {
+      productImagePreview.style.display = 'none';
+    }
+  }
+
+  // Hide product form
+  function hideProductForm() {
+    productFormContainer.style.display = 'none';
+    productForm.reset();
+    productImagePreview.style.display = 'none';
+  }
+
+  // Edit product
+  async function editProduct(id) {
+    try {
+      const product = await productsAPI.getById(id);
+      if (product) {
+        showProductForm(product);
+      }
+    } catch (error) {
+      console.error('Error loading product for edit:', error);
+      alert('Failed to load product for editing. Please try again.');
+    }
+  }
+
+  // Delete product
+  async function deleteProduct(id) {
+    if (confirm('Are you sure you want to delete this product?')) {
+      try {
+        await productsAPI.delete(id);
+        await loadProducts();
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product. Please try again.');
+      }
+    }
+  }
+
+  // Handle image preview
+  productImageInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        productImagePreview.src = e.target.result;
+        productImagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     }
   });
 
-  // Add new product
-  if (addProductBtn) {
-    addProductBtn.addEventListener("click", () => {
-      if (productForm) {
-        resetProductForm();
-        // Show the form
-        if (productFormContainer) productFormContainer.style.display = "block";
+  // Event listeners
+  addProductBtn.addEventListener('click', () => showProductForm());
+  closeFormBtn.addEventListener('click', hideProductForm);
+  cancelBtn.addEventListener('click', hideProductForm);
+
+  productForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const id = formData.get('id');
+    
+    try {
+      if (id) {
+        await productsAPI.update(id, formData);
+      } else {
+        await productsAPI.create(formData);
       }
-    });
-  }
-
-  // Handle form submission
-  if (productForm) {
-    productForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(productForm);
-      const productId = document.getElementById("product-id").value;
-
-      try {
-        if (productId) {
-          await productsAPI.update(productId, formData);
-        } else {
-          await productsAPI.create(formData);
-        }
-
-        // Reset and hide form
-        resetProductForm();
-        if (productFormContainer) productFormContainer.style.display = "none";
-
-        // Reload products and dashboard
-        await loadProducts();
-        await initDashboard();
-
-        alert(
-          productId
-            ? "Product updated successfully!"
-            : "Product created successfully!"
-        );
-      } catch (error) {
-        console.error("Error saving product:", error);
-        alert(
-          "Error saving product: " +
-            (error.message || "Server connection issue")
-        );
-      }
-    });
-  }
-
-  // Close form button
-  const closeFormBtn =
-    productFormContainer &&
-    productFormContainer.querySelector(".close-form-btn");
-  if (closeFormBtn) {
-    closeFormBtn.addEventListener("click", () => {
-      productFormContainer.style.display = "none";
-    });
-  }
-
-  // Cancel button
-  const cancelBtn = productForm && productForm.querySelector(".cancel-btn");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (productFormContainer) productFormContainer.style.display = "none";
-    });
-  }
-
-  // Image preview
-  const productImageInput = document.getElementById("product-image");
-  const productImagePreview = document.getElementById("product-image-preview");
-
-  if (productImageInput && productImagePreview) {
-    productImageInput.addEventListener("change", function () {
-      if (this.files && this.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          productImagePreview.src = e.target.result;
-          productImagePreview.style.display = "block";
-        };
-        reader.readAsDataURL(this.files[0]);
-      }
-    });
-  }
-}
-
-// Reset product form
-function resetProductForm() {
-  const form = document.getElementById("product-form");
-  if (!form) return;
-
-  form.reset();
-
-  // Reset the hidden ID field
-  const productIdInput = document.getElementById("product-id");
-  if (productIdInput) productIdInput.value = "";
-
-  // Reset the image preview
-  const imagePreview = document.getElementById("product-image-preview");
-  if (imagePreview) {
-    imagePreview.style.display = "none";
-    imagePreview.src = "";
-  }
-
-  // Update form title
-  const formTitle = document.getElementById("product-form-title");
-  if (formTitle) formTitle.textContent = "Add New Product";
-}
-
-// Load products with error handling
-async function loadProducts() {
-  try {
-    const products = await productsAPI.getAll();
-    const tbody = document.getElementById("products-table");
-
-    if (!tbody) return;
-
-    if (products.length === 0) {
-      tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center">No products found</td></tr>';
-      return;
+      hideProductForm();
+      await loadProducts();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      alert('Failed to save product. Please try again.');
     }
+  });
 
-    tbody.innerHTML = products
-      .map(
-        (product) => `
-      <tr>
-        <td><img src="${product.imageUrl}" alt="${
-          product.title
-        }" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;" onerror="this.src='./images/fallback.jpg'"></td>
-        <td>${product.title}<br><small>${product.subtitle || ""}</small></td>
-        <td>${getCategoryName(product.category)}</td>
-        <td>${
-          product.featured
-            ? '<span class="status-badge featured">Featured</span>'
-            : ""
-        }</td>
-        <td>
-          <div class="action-buttons">
-            <button class="action-btn edit" onclick="handleEditProduct('${
-              product._id
-            }')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-              </svg>
-            </button>
-            <button class="action-btn delete" onclick="handleDeleteProduct('${
-              product._id
-            }')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `
-      )
-      .join("");
-  } catch (error) {
-    console.error("Error loading products:", error);
-    throw error; // Re-throw for caller handling
-  }
-}
-
-function getCategoryName(category) {
-  const categories = {
-    windows: "Windows & Glass",
-    doors: "Door Systems",
-    signature: "Signature Series",
-    architectural: "Architectural Elements",
-  };
-
-  return categories[category] || category;
+  // Initial load
+  loadProducts();
 }
 
 // Handle functions for global scope
@@ -1016,10 +1091,6 @@ window.handleEditBlog = async (id) => {
     // Set TinyMCE content
     tinymce.get('blog-content').setContent(blog.content || "");
     document.getElementById("blog-author").value = blog.author || "";
-
-    // For category and status, check if elements exist first
-    const categoryField = document.getElementById("blog-category");
-    if (categoryField) categoryField.value = blog.category || "";
 
     const statusField = document.getElementById("blog-status");
     if (statusField)
